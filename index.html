@@ -18,94 +18,54 @@
             font-family: 'Segoe UI', 'Courier New', monospace; 
         }
 
-        canvas { position: fixed; top: 0; left: 0; z-index: 1; opacity: 0.6; }
+        canvas { position: fixed; top: 0; left: 0; z-index: 1; opacity: 0.4; }
 
         .ui-layer {
-            position: relative;
-            z-index: 10;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
-            text-align: center;
-            transition: all 0.5s;
+            position: relative; z-index: 10; height: 100vh;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--primary); text-align: center;
         }
 
         .terminal-window {
-            background: rgba(0, 20, 0, 0.95);
+            background: rgba(0, 15, 0, 0.95);
             border: 2px solid var(--primary);
-            box-shadow: 0 0 25px rgba(0, 255, 65, 0.3);
-            padding: 30px;
-            width: 90%;
-            max-width: 500px;
-            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.2);
+            padding: 30px; width: 90%; max-width: 480px; border-radius: 10px;
         }
 
         .intro-text {
-            font-size: 1.4em;
-            font-weight: 800;
-            margin-bottom: 20px;
-            line-height: 1.3;
-            color: var(--primary);
-            text-transform: uppercase;
+            font-size: 1.4em; font-weight: 800; margin-bottom: 20px;
+            color: var(--primary); text-transform: uppercase;
         }
 
-        .mek-style {
-            color: var(--mcdonalds);
-            text-shadow: 0 0 10px rgba(255, 188, 13, 0.6);
-        }
+        .mek-style { color: var(--mcdonalds); text-shadow: 0 0 10px rgba(255, 188, 13, 0.8); }
 
-        h1 { font-size: 1em; margin-bottom: 15px; letter-spacing: 3px; opacity: 0.7; }
-
-        .progress-section { margin: 15px 0; text-align: left; }
-        .label { font-size: 0.75em; margin-bottom: 5px; display: block; font-weight: bold; }
+        .label { font-size: 0.75em; display: block; margin-bottom: 5px; text-align: left; }
         
         .progress-bar {
-            width: 100%;
-            height: 10px;
-            background: #001a00;
-            border-radius: 5px;
-            margin-bottom: 12px;
-            overflow: hidden;
+            width: 100%; height: 10px; background: #001a00;
+            border-radius: 5px; margin-bottom: 12px; overflow: hidden;
             border: 1px solid var(--primary);
         }
 
         .fill {
-            height: 100%;
-            background: var(--primary);
-            width: 0%;
-            box-shadow: 0 0 10px var(--primary);
-            transition: width 0.3s linear;
+            height: 100%; background: var(--primary); width: 0%;
+            box-shadow: 0 0 10px var(--primary); transition: width 0.3s linear;
         }
 
         #timer {
-            font-size: 4em;
-            color: var(--danger);
-            font-weight: 900;
-            text-shadow: 0 0 20px var(--danger);
-            margin: 10px 0;
+            font-size: 4.5em; color: var(--danger); font-weight: 900;
+            text-shadow: 0 0 25px var(--danger); margin: 15px 0;
         }
 
         #abort-btn {
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 18px 45px;
-            font-size: 1.4em;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 10px;
-            box-shadow: 0 0 15px var(--danger);
+            background: var(--danger); color: white; border: none;
+            padding: 18px 45px; font-size: 1.3em; font-weight: bold;
+            cursor: pointer; border-radius: 10px; text-transform: uppercase;
             animation: pulse 0.8s infinite alternate;
-            text-transform: uppercase;
         }
 
-        @keyframes pulse {
-            from { transform: scale(1); }
-            to { transform: scale(1.05); }
-        }
+        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
 
         .shake { animation: shake 0.1s infinite; }
         @keyframes shake {
@@ -115,34 +75,25 @@
         }
 
         #love-screen {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 100;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 100; flex-direction: column; align-items: center; justify-content: center;
         }
 
         .love-content {
-            background: rgba(0, 0, 0, 0.9);
-            padding: 40px;
-            border: 3px solid #ff3366;
-            border-radius: 25px;
-            box-shadow: 0 0 40px #ff3366;
-            z-index: 110;
-            text-align: center;
+            background: rgba(0, 0, 0, 0.95); padding: 40px;
+            border: 3px solid #ff3366; border-radius: 25px;
+            box-shadow: 0 0 50px #ff3366; text-align: center;
         }
 
         .heart { font-size: 100px; animation: beat 0.4s infinite alternate; }
         @keyframes beat { to { transform: scale(1.2); } }
     </style>
 </head>
-<body onclick="startSiren()">
+<body>
 
-    <audio id="siren-sound" loop>
-        <source src="https://www.soundjay.com/buttons/beep-01a.mp3" type="audio/mpeg">
-        </audio>
+    <audio id="siren" loop>
+        <source src="https://www.soundjay.com/misc/sounds/ambulance-siren-01.mp3" type="audio/mpeg">
+    </audio>
 
     <canvas id="matrix"></canvas>
 
@@ -153,16 +104,16 @@
                 Radio sam 4 godine u <span class="mek-style">Mek-u</span>
             </div>
             
-            <h1>SYSTEM OVERRIDE</h1>
+            <h2 style="font-size: 0.9em; letter-spacing: 2px; margin-bottom: 20px;">BRISANJE PODATAKA...</h2>
             
             <div class="progress-section">
-                <span class="label">PRISTUP KONTAKTIMA: <span id="p1-txt">0%</span></span>
+                <span class="label">KONTAKTI: <span id="p1-txt">0%</span></span>
                 <div class="progress-bar"><div id="b1" class="fill"></div></div>
                 
-                <span class="label">DOWNLOAD GALERIJE: <span id="p2-txt">0%</span></span>
+                <span class="label">GALERIJA: <span id="p2-txt">0%</span></span>
                 <div class="progress-bar"><div id="b2" class="fill"></div></div>
                 
-                <span class="label">BRISANJE SMS, VIBER, WHATSAPP: <span id="p3-txt">0%</span></span>
+                <span class="label">SMS I VIBER: <span id="p3-txt">0%</span></span>
                 <div class="progress-bar"><div id="b3" class="fill"></div></div>
             </div>
 
@@ -180,30 +131,22 @@
     </div>
 
     <script>
-        const siren = document.getElementById('siren-sound');
-        
-        // Funkcija koja pokreće sirenu na prvi klik (neophodno zbog browsera)
-        function startSiren() {
-            siren.play();
-        }
-
+        const siren = document.getElementById('siren');
         const canvas = document.getElementById('matrix');
         const ctx = canvas.getContext('2d');
+
         canvas.height = window.innerHeight;
         canvas.width = window.innerWidth;
-
-        const characters = "01010101010101010101010101010101";
+        const characters = "01010101";
         const fontSize = 16;
         const columns = canvas.width / fontSize;
         const drops = Array(Math.floor(columns)).fill(1);
-        let matrixColor = "#0F0";
 
         function drawMatrix() {
             ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = matrixColor;
+            ctx.fillStyle = "#0F0";
             ctx.font = fontSize + "px monospace";
-
             for (let i = 0; i < drops.length; i++) {
                 const text = characters.charAt(Math.floor(Math.random() * characters.length));
                 ctx.fillText(text, i * fontSize, drops[i] * fontSize);
@@ -213,26 +156,24 @@
         }
         setInterval(drawMatrix, 35);
 
-        function updateBar(id, txtId, duration, callback) {
+        // Progress bars animacija
+        function updateBar(id, txtId, speed) {
             let width = 0;
             let interval = setInterval(() => {
-                if (width >= 100) {
-                    clearInterval(interval);
-                    if(callback) callback();
-                } else {
-                    width += 2;
+                if (width >= 100) clearInterval(interval);
+                else {
+                    width += 1;
                     document.getElementById(id).style.width = width + '%';
                     document.getElementById(txtId).innerText = width + '%';
                 }
-            }, duration);
+            }, speed);
         }
 
-        updateBar('b1', 'p1-txt', 40, () => {
-            updateBar('b2', 'p2-txt', 30, () => {
-                updateBar('b3', 'p3-txt', 60);
-            });
-        });
+        updateBar('b1', 'p1-txt', 60);
+        updateBar('b2', 'p2-txt', 90);
+        updateBar('b3', 'p3-txt', 40);
 
+        // Tajmer i "Panika"
         let timeLeft = 10;
         const timerElement = document.getElementById('timer');
         const windowElement = document.getElementById('window');
@@ -247,17 +188,20 @@
             }
         }, 1000);
 
+        // KLJUČNI DEO: Sirena kreće na klik dugmeta
         document.getElementById('abort-btn').onclick = triggerLove;
 
         function triggerLove() {
             clearInterval(countdown);
-            siren.pause(); // Gasi sirenu kad se pojavi srce
-            matrixColor = "#ff3366"; 
-            document.getElementById('hacked-ui').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('hacked-ui').style.display = 'none';
-                document.getElementById('love-screen').style.display = 'flex';
-            }, 500);
+            
+            // Pokretanje sirene u momentu prelaska
+            siren.play().catch(e => console.log("Audio play blocked by browser. Click anywhere first!"));
+            
+            document.getElementById('hacked-ui').style.display = 'none';
+            document.getElementById('love-screen').style.display = 'flex';
+            
+            // Menjamo matrix u crvenu boju za srce
+            ctx.fillStyle = "#ff3366";
         }
     </script>
 </body>
