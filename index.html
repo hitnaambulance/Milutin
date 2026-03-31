@@ -3,132 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Upad...</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: black; font-family: 'Courier New', monospace; }
+        :root {
+            --primary: #00ff41;
+            --danger: #ff003c;
+            --mcdonalds: #ffbc0d;
+            --bg: #050505;
+        }
+
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            overflow: hidden; background: var(--bg); 
+            font-family: 'Segoe UI', 'Courier New', monospace; 
+        }
+
+        canvas { position: fixed; top: 0; left: 0; z-index: 1; opacity: 0.6; }
+
+        .ui-layer {
+            position: relative;
+            z-index: 10;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            text-align: center;
+            transition: all 0.5s;
+        }
+
+        .terminal-window {
+            background: rgba(0, 20, 0, 0.95);
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 25px rgba(0, 255, 65, 0.3);
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+
+        /* PRILAGOĐEN UVODNI TEKST */
+        .intro-text {
+            font-size: 1.4em; /* Smanjen font */
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.3;
+            color: var(--primary); /* Zelena slova */
+            text-transform: uppercase;
+        }
+
+        .mek-style {
+            color: var(--mcdonalds); /* Ostaje žuto */
+            text-shadow: 0 0 10px rgba(255, 188, 13, 0.6);
+        }
+
+        h1 { font-size: 1em; margin-bottom: 15px; letter-spacing: 3px; opacity: 0.7; color: var(--primary); }
+
+        .progress-section { margin: 15px 0; text-align: left; }
+        .label { font-size: 0.75em; margin-bottom: 5px; display: block; font-weight: bold; }
         
-        /* Matrix sloj - postavljen da bude vidljiv preko svega */
-        canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; opacity: 0.5; }
-        
-        .container { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #0F0; width: 85%; z-index: 5; text-shadow: 0 0 8px #0F0; }
-        #status-box { width: 100%; border: 1px solid #0F0; padding: 15px; text-align: left; background: rgba(0, 10, 0, 0.9); }
-        .status-item { margin-bottom: 12px; display: flex; flex-direction: column; font-size: 0.85em; }
-        .bar-container { width: 100%; height: 12px; background: #002200; border: 1px solid #0F0; border-radius: 6px; overflow: hidden; margin-top: 5px; }
-        .bar-fill { height: 100%; background: #0F0; width: 0%; box-shadow: 0 0 10px #0F0; }
-        .status-header { display: flex; justify-content: space-between; }
-        #countdown { font-size: 5em; color: red; margin: 15px 0; text-shadow: 0 0 15px red; }
-        #stop-btn { background: red; color: white; border: none; padding: 20px 50px; font-size: 2em; font-weight: bold; border-radius: 15px; cursor: pointer; animation: pulse 0.8s infinite alternate; pointer-events: auto; }
-        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
-        #joke-screen { display: none; opacity: 0; transition: opacity 1s; z-index: 20; position: relative; }
-        #heart { font-size: 80px; color: red; animation: beat 0.5s infinite alternate; }
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #001a00;
+            border-radius: 5px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            border: 1px solid var(--primary);
+        }
+
+        .fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            box-shadow: 0 0 10px var(--primary);
+            transition: width 0.3s linear;
+        }
+
+        #timer {
+            font-size: 4em;
+            color: var(--danger);
+            font-weight: 900;
+            text-shadow: 0 0 20px var(--danger);
+            margin: 10px 0;
+        }
+
+        #abort-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 18px 45px;
+            font-size: 1.4em;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 10px;
+            box-shadow: 0 0 15px var(--danger);
+            animation: pulse 0.8s infinite alternate;
+            text-transform: uppercase;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+
+        .shake { animation: shake 0.1s infinite; }
+        @keyframes shake {
+            0% { transform: translate(2px, 0); }
+            50% { transform: translate(-2px, 0); }
+            100% { transform: translate(0, 2px); }
+        }
+
+        #love-screen {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 100;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .love-content {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            border: 3px solid #ff3366;
+            border-radius: 25px;
+            box-shadow: 0 0 40px #ff3366;
+            z-index: 110;
+            text-align: center;
+        }
+
+        .heart { font-size: 100px; animation: beat 0.4s infinite alternate; }
         @keyframes beat { to { transform: scale(1.2); } }
     </style>
 </head>
 <body>
 
-    <canvas id="c"></canvas>
+    <canvas id="matrix"></canvas>
 
-    <div id="hacked" class="container">
-        <h1>Ćao, ja sam Milutin :)</h1>
-        <p style="font-size: 0.9em; color: lime;">Sistem kompromitovan. Čišćenje podataka...</p>
-        
-        <div id="status-box">
-            <div class="status-item">
-                <div class="status-header"><span>Kontakti: brisanje</span><span id="p1">0%</span></div>
-                <div class="bar-container"><div id="b1" class="bar-fill"></div></div>
+    <div id="hacked-ui" class="ui-layer">
+        <div class="terminal-window" id="window">
+            <div class="intro-text">
+                Ja sam Milutin<br>
+                Radio sam 4 godine u <span class="mek-style">Mek-u</span>
             </div>
-            <div class="status-item">
-                <div class="status-header"><span>SMS, Viber, WhatsApp: brisanje</span><span id="p2">0%</span></div>
-                <div class="bar-container"><div id="b2" class="bar-fill"></div></div>
+            
+            <h1>SYSTEM OVERRIDE</h1>
+            
+            <div class="progress-section">
+                <span class="label">PRISTUP KONTAKTIMA: <span id="p1-txt">0%</span></span>
+                <div class="progress-bar"><div id="b1" class="fill"></div></div>
+                
+                <span class="label">DOWNLOAD GALERIJE: <span id="p2-txt">0%</span></span>
+                <div class="progress-bar"><div id="b2" class="fill"></div></div>
+                
+                <span class="label">BRISANJE SMS, VIBER, WHATSAPP: <span id="p3-txt">0%</span></span>
+                <div class="progress-bar"><div id="b3" class="fill"></div></div>
             </div>
-            <div class="status-item">
-                <div class="status-header"><span>Aplikacija banke: transfer novca</span><span id="p3">0%</span></div>
-                <div class="bar-container"><div id="b3" class="bar-fill"></div></div>
-            </div>
+
+            <div id="timer">10</div>
+            <button id="abort-btn">ZAUSTAVI BRISANJE</button>
         </div>
-
-        <div id="countdown">10</div>
-        <button id="stop-btn">STOP</button>
     </div>
 
-    <div id="joke-screen" class="container">
-        <h1 style="color: #ff9a9e;">ŠALIM SE!</h1>
-        <p style="color: white;">Jedina stvar koja je hakovana je moje srce</p>
-        <div id="heart">❤</div>
+    <div id="love-screen">
+        <div class="love-content">
+            <div class="heart">❤️</div>
+            <h1 style="color: #ff3366; font-size: 2.5em; margin-top: 20px;">ŠALIM SE!</h1>
+            <p style="color: white; font-size: 1.6em; font-weight: bold;">Hakovano je moje srce !</p>
+        </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('c');
+        const canvas = document.getElementById('matrix');
         const ctx = canvas.getContext('2d');
-        const siren = new Audio('siren.mp3'); 
+        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth;
 
-        function resize() { canvas.height = window.innerHeight; canvas.width = window.innerWidth; }
-        window.onresize = resize;
-        resize();
-
-        const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%^&*";
+        const characters = "01010101010101010101010101010101";
         const fontSize = 16;
-        let columns = canvas.width / fontSize;
-        let drops = Array.from({length: columns}).map(() => Math.random() * -100);
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+        let matrixColor = "#0F0";
 
-        function draw() {
+        function drawMatrix() {
             ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "#0F0";
+            ctx.fillStyle = matrixColor;
             ctx.font = fontSize + "px monospace";
+
             for (let i = 0; i < drops.length; i++) {
-                const text = chars[Math.floor(Math.random() * chars.length)];
+                const text = characters.charAt(Math.floor(Math.random() * characters.length));
                 ctx.fillText(text, i * fontSize, drops[i] * fontSize);
                 if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
                 drops[i]++;
             }
         }
+        setInterval(drawMatrix, 35);
 
-        // POKRETANJE SVEGA AUTOMATSKI ČIM SE STRANICA UČITA
-        window.onload = function() {
-            // Matrix kreće odmah
-            setInterval(draw, 35);
-            
-            // Load barovi kreću odmah
-            fillBar("b1", "p1", 50, () => fillBar("b2", "p2", 40, () => fillBar("b3", "p3", 80)));
-            
-            // Tajmer kreće odmah
-            startTimer();
-        };
-
-        function fillBar(id, pid, speed, next) {
-            let p = 0;
-            let inv = setInterval(() => {
-                p += 1; if(p > 100) p = 100;
-                document.getElementById(id).style.width = p + "%";
-                document.getElementById(pid).innerText = p + "%";
-                if(p >= 100) { clearInterval(inv); if(next) next(); }
-            }, speed);
+        function updateBar(id, txtId, duration, callback) {
+            let width = 0;
+            let interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    if(callback) callback();
+                } else {
+                    width += 2;
+                    document.getElementById(id).style.width = width + '%';
+                    document.getElementById(txtId).innerText = width + '%';
+                }
+            }, duration);
         }
 
-        function startTimer() {
-            let time = 10;
-            let tInv = setInterval(() => {
-                time--; 
-                document.getElementById("countdown").innerText = time;
-                if(time <= 0) clearInterval(tInv);
-            }, 1000);
+        updateBar('b1', 'p1-txt', 40, () => {
+            updateBar('b2', 'p2-txt', 30, () => {
+                updateBar('b3', 'p3-txt', 60);
+            });
+        });
+
+        let timeLeft = 10;
+        const timerElement = document.getElementById('timer');
+        const windowElement = document.getElementById('window');
+        
+        let countdown = setInterval(() => {
+            timeLeft--;
+            timerElement.innerText = timeLeft;
+            if(timeLeft <= 3) windowElement.classList.add('shake');
+            if(timeLeft <= 0) {
+                clearInterval(countdown);
+                triggerLove();
+            }
+        }, 1000);
+
+        document.getElementById('abort-btn').onclick = triggerLove;
+
+        function triggerLove() {
+            clearInterval(countdown);
+            matrixColor = "#ff3366"; 
+            document.getElementById('hacked-ui').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('hacked-ui').style.display = 'none';
+                document.getElementById('love-screen').style.display = 'flex';
+            }, 500);
         }
-
-        // Zvuk i dalje zahteva jedan klik bilo gde na ekranu da bi se "otključao"
-        document.body.onclick = function() {
-            siren.play().then(() => {
-                siren.pause();
-                siren.currentTime = 0;
-            }).catch(e => console.log("Audio waiting for interaction"));
-        };
-
-        document.getElementById("stop-btn").onclick = function(e) {
-            e.stopPropagation();
-            siren.play(); 
-            document.getElementById("hacked").style.display = "none";
-            document.getElementById("joke-screen").style.display = "block";
-            setTimeout(() => { document.getElementById("joke-screen").style.opacity = "1"; }, 100);
-        };
     </script>
 </body>
 </html>
