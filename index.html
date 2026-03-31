@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: black; font-family: 'Courier New', monospace; }
+        canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        .container { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #0F0; width: 85%; z-index: 5; text-shadow: 0 0 8px #0F0; }
+        #status-box { width: 100%; border: 1px solid #0F0; padding: 15px; text-align: left; background: rgba(0, 10, 0, 0.9); }
+        .status-item { margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+        .bar-container { width: 50%; height: 12px; background: #002200; border: 1px solid #0F0; border-radius: 6px; overflow: hidden; }
+        .bar-fill { height: 100%; background: #0F0; width: 0%; box-shadow: 0 0 10px #0F0; transition: width 0.3s; }
+        #countdown { font-size: 5em; color: red; margin: 20px 0; text-shadow: 0 0 15px red; }
+        #stop-btn { background: red; color: white; border: none; padding: 25px 60px; font-size: 2.5em; font-weight: bold; border-radius: 15px; cursor: pointer; animation: pulse 0.8s infinite alternate; }
+        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+        #joke-screen { display: none; opacity: 0; transition: opacity 1s; }
+        #heart { font-size: 100px; color: red; animation: beat 0.5s infinite alternate; margin-top: 20px; }
+        @keyframes beat { to { transform: scale(1.2); } }
+        .melt { animation: melt 1.5s forwards; }
+        @keyframes melt { 100% { transform: translate(-50%, 150vh); opacity: 0; } }
+    </style>
+</head>
+<body>
+    <canvas id="c"></canvas>
+    <div id="hacked" class="container">
+        <h1>Ćao, ja sam Milutin :)</h1>
+        <p>Tvoj telefon je hakovan.</p>
+        <div id="status-box">
+            <div class="status-item"><span>Kontakti:</span><div class="bar-container"><div id="b1" class="bar-fill"></div></div><span id="p1">0%</span></div>
+            <div class="status-item"><span>Poruke:</span><div class="bar-container"><div id="b2" class="bar-fill"></div></div><span id="p2">0%</span></div>
+            <div class="status-item"><span>Banka:</span><div class="bar-container"><div id="b3" class="bar-fill"></div></div><span id="p3">0%</span></div>
+        </div>
+        <div id="countdown">10</div>
+        <button id="stop-btn">STOP</button>
+    </div>
+    <div id="joke-screen" class="container">
+        <h1 style="color: #ff9a9e;">ŠALIM SE!</h1>
+        <p style="color: white; font-size: 1.5em;">Jedina stvar koja je hakovana je moje srce</p>
+        <div id="heart">❤</div>
+    </div>
+    <script>
+        const canvas = document.getElementById('c');
+        const ctx = canvas.getContext('2d');
+        canvas.height = window.innerHeight; canvas.width = window.innerWidth;
+        const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%^&*";
+        const fontSize = 18;
+        const columns = canvas.width / fontSize;
+        const drops = Array.from({length: columns}).map(() => Math.random() * -100);
+        let color = "#0F0";
+        function draw() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = color; ctx.font = fontSize + "px monospace";
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars[Math.floor(Math.random() * chars.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+        setInterval(draw, 35);
+        function fillBar(id, pid, speed, next) {
+            let p = 0;
+            let inv = setInterval(() => {
+                p += 2; if(p > 100) p = 100;
+                document.getElementById(id).style.width = p + "%";
+                document.getElementById(pid).innerText = p + "%";
+                if(p >= 100) { clearInterval(inv); if(next) next(); }
+            }, speed);
+        }
+        fillBar("b1", "p1", 40, () => fillBar("b2", "p2", 30, () => fillBar("b3", "p3", 60)));
+        let time = 10;
+        let tInv = setInterval(() => {
+            time--; document.getElementById("countdown").innerText = time;
+            if(time <= 0) clearInterval(tInv);
+        }, 1000);
+        document.getElementById("stop-btn").onclick = function() {
+            clearInterval(tInv);
+            const siren = new Audio('Siren.mp3');
+            siren.play().catch(() => console.log("Audio block"));
+            document.getElementById("hacked").classList.add("melt");
+            setTimeout(() => {
+                document.getElementById("hacked").style.display = "none";
+                color = "#ff3333";
+                document.getElementById("joke-screen").style.display = "block";
+                setTimeout(() => { document.getElementById("joke-screen").style.opacity = "1"; }, 100);
+            }, 1500);
+        };
+    </script>
+</body>
+</html>
