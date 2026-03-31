@@ -3,26 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Upozorenje</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: black; font-family: 'Courier New', monospace; cursor: pointer; }
-        canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
-        .container { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #0F0; width: 85%; z-index: 5; text-shadow: 0 0 8px #0F0; }
-        #status-box { width: 100%; border: 1px solid #0F0; padding: 15px; text-align: left; background: rgba(0, 10, 0, 0.9); }
+        
+        /* Promena z-index-a da Matrix bude ISPRED */
+        canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
+        
+        .container { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #0F0; width: 85%; z-index: 5; text-shadow: 0 0 8px #0F0; pointer-events: none; }
+        
+        /* Dodatna providnost za bolju vidljivost Matrixa */
+        #status-box { width: 100%; border: 1px solid #0F0; padding: 15px; text-align: left; background: rgba(0, 5, 0, 0.85); pointer-events: auto; }
+        
         .status-item { margin-bottom: 12px; display: flex; flex-direction: column; font-size: 0.85em; }
-        .bar-container { width: 100%; height: 12px; background: #002200; border: 1px solid #0F0; border-radius: 6px; overflow: hidden; margin-top: 5px; }
+        .bar-container { width: 100%; height: 12px; background: #001100; border: 1px solid #0F0; border-radius: 6px; overflow: hidden; margin-top: 5px; }
         .bar-fill { height: 100%; background: #0F0; width: 0%; box-shadow: 0 0 10px #0F0; }
         .status-header { display: flex; justify-content: space-between; }
         #countdown { font-size: 5em; color: red; margin: 15px 0; text-shadow: 0 0 15px red; }
-        #stop-btn { background: red; color: white; border: none; padding: 20px 50px; font-size: 2em; font-weight: bold; border-radius: 15px; cursor: pointer; animation: pulse 0.8s infinite alternate; }
-        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
-        #joke-screen { display: none; opacity: 0; transition: opacity 1s; }
+        
+        #stop-btn { background: red; color: white; border: none; padding: 20px 50px; font-size: 2em; font-weight: bold; border-radius: 15px; cursor: pointer; animation: pulse 0.8s infinite alternate; pointer-events: auto; }
+        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
+        
+        #joke-screen { display: none; opacity: 0; transition: opacity 1s; z-index: 20; position: relative;}
         #heart { font-size: 80px; color: red; animation: beat 0.5s infinite alternate; }
         @keyframes beat { to { transform: scale(1.2); } }
+        
         .melt { animation: melt 1.5s forwards; }
         @keyframes melt { 100% { transform: translate(-50%, 150vh); opacity: 0; } }
     </style>
 </head>
-<body onclick="pokreniSve()">
+<body onclick="pokreniMatrixIZvuk()">
 
     <canvas id="c"></canvas>
 
@@ -59,7 +69,7 @@
         const canvas = document.getElementById('c');
         const ctx = canvas.getContext('2d');
         const siren = new Audio('siren.mp3'); 
-        let aktivirano = false;
+        let matrixAktiviran = false;
 
         function resize() { canvas.height = window.innerHeight; canvas.width = window.innerWidth; }
         window.onresize = resize;
@@ -71,7 +81,7 @@
         let drops = Array.from({length: columns}).map(() => Math.random() * -100);
 
         function draw() {
-            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)"; // Malo prozirnija pozadina da kôd "teče"
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = "#0F0";
             ctx.font = fontSize + "px monospace";
@@ -83,21 +93,31 @@
             }
         }
 
-        function pokreniSve() {
-            if (!aktivirano) {
-                // Budimo audio i Matrix na prvi dodir ekrana
+        // KREĆE AUTOMATSKI NA UČITAVANJE
+        window.onload = function() {
+            startEverythingAuto();
+        };
+
+        // Funkcija koja pokreće load barove i tajmer automatski
+        function startEverythingAuto() {
+            fillBar("b1", "p1", 45, () => fillBar("b2", "p2", 35, () => fillBar("b3", "p3", 75)));
+            let time = 10;
+            let tInv = setInterval(() => {
+                time--; 
+                document.getElementById("countdown").innerText = time;
+                if(time <= 0) clearInterval(tInv);
+            }, 1000);
+        }
+
+        // MATRIX I ZVUK SE OTKLJUČAVAJU NA PRVI DODIR EKRANA
+        function pokreniMatrixIZvuk() {
+            if (!matrixAktiviran) {
+                // Budimo audio
                 siren.play().then(() => { siren.pause(); siren.currentTime = 0; }).catch(e => console.log("Audio block"));
+                
+                // Krećemo Matrix
                 setInterval(draw, 35);
-                fillBar("b1", "p1", 50, () => fillBar("b2", "p2", 40, () => fillBar("b3", "p3", 80)));
-                
-                let time = 10;
-                let tInv = setInterval(() => {
-                    time--; 
-                    document.getElementById("countdown").innerText = time;
-                    if(time <= 0) clearInterval(tInv);
-                }, 1000);
-                
-                aktivirano = true;
+                matrixAktiviran = true;
             }
         }
 
