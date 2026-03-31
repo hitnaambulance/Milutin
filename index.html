@@ -18,7 +18,7 @@
             font-family: 'Segoe UI', 'Courier New', monospace; 
         }
 
-        canvas { position: fixed; top: 0; left: 0; z-index: 1; opacity: 0.4; }
+        canvas { position: fixed; top: 0; left: 0; z-index: 1; opacity: 0.6; }
 
         .ui-layer {
             position: relative; z-index: 10; height: 100vh;
@@ -27,20 +27,21 @@
         }
 
         .terminal-window {
-            background: rgba(0, 15, 0, 0.95);
+            background: rgba(0, 20, 0, 0.95);
             border: 2px solid var(--primary);
-            box-shadow: 0 0 30px rgba(0, 255, 65, 0.2);
-            padding: 30px; width: 90%; max-width: 480px; border-radius: 10px;
+            box-shadow: 0 0 25px rgba(0, 255, 65, 0.3);
+            padding: 30px; width: 90%; max-width: 500px; border-radius: 8px;
         }
 
         .intro-text {
             font-size: 1.4em; font-weight: 800; margin-bottom: 20px;
-            color: var(--primary); text-transform: uppercase;
+            line-height: 1.3; color: var(--primary); text-transform: uppercase;
         }
 
-        .mek-style { color: var(--mcdonalds); text-shadow: 0 0 10px rgba(255, 188, 13, 0.8); }
+        .mek-style { color: var(--mcdonalds); text-shadow: 0 0 10px rgba(255, 188, 13, 0.6); font-weight: bold; }
 
-        .label { font-size: 0.75em; display: block; margin-bottom: 5px; text-align: left; }
+        .progress-section { margin: 15px 0; text-align: left; }
+        .label { font-size: 0.75em; margin-bottom: 5px; display: block; font-weight: bold; }
         
         .progress-bar {
             width: 100%; height: 10px; background: #001a00;
@@ -48,31 +49,22 @@
             border: 1px solid var(--primary);
         }
 
-        .fill {
-            height: 100%; background: var(--primary); width: 0%;
-            box-shadow: 0 0 10px var(--primary); transition: width 0.3s linear;
-        }
+        .fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s linear; }
 
         #timer {
-            font-size: 4.5em; color: var(--danger); font-weight: 900;
-            text-shadow: 0 0 25px var(--danger); margin: 15px 0;
+            font-size: 4em; color: var(--danger); font-weight: 900;
+            text-shadow: 0 0 20px var(--danger); margin: 10px 0;
         }
 
         #abort-btn {
             background: var(--danger); color: white; border: none;
-            padding: 18px 45px; font-size: 1.3em; font-weight: bold;
-            cursor: pointer; border-radius: 10px; text-transform: uppercase;
-            animation: pulse 0.8s infinite alternate;
+            padding: 18px 45px; font-size: 1.4em; font-weight: bold;
+            cursor: pointer; border-radius: 10px; animation: pulse 0.8s infinite alternate;
         }
 
         @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
-
         .shake { animation: shake 0.1s infinite; }
-        @keyframes shake {
-            0% { transform: translate(2px, 0); }
-            50% { transform: translate(-2px, 0); }
-            100% { transform: translate(0, 2px); }
-        }
+        @keyframes shake { 0% { transform: translate(2px, 0); } 50% { transform: translate(-2px, 0); } 100% { transform: translate(0, 2px); } }
 
         #love-screen {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -80,20 +72,15 @@
         }
 
         .love-content {
-            background: rgba(0, 0, 0, 0.95); padding: 40px;
-            border: 3px solid #ff3366; border-radius: 25px;
-            box-shadow: 0 0 50px #ff3366; text-align: center;
+            background: rgba(0, 0, 0, 0.95); padding: 40px; border: 3px solid #ff3366;
+            border-radius: 25px; box-shadow: 0 0 40px #ff3366; text-align: center;
         }
 
         .heart { font-size: 100px; animation: beat 0.4s infinite alternate; }
         @keyframes beat { to { transform: scale(1.2); } }
     </style>
 </head>
-<body>
-
-    <audio id="siren" loop>
-        <source src="https://www.soundjay.com/misc/sounds/ambulance-siren-01.mp3" type="audio/mpeg">
-    </audio>
+<body onclick="initAudio()">
 
     <canvas id="matrix"></canvas>
 
@@ -104,16 +91,16 @@
                 Radio sam 4 godine u <span class="mek-style">Mek-u</span>
             </div>
             
-            <h2 style="font-size: 0.9em; letter-spacing: 2px; margin-bottom: 20px;">BRISANJE PODATAKA...</h2>
+            <h1 style="font-size: 1em; letter-spacing: 3px; opacity: 0.7;">SYSTEM OVERRIDE</h1>
             
             <div class="progress-section">
-                <span class="label">KONTAKTI: <span id="p1-txt">0%</span></span>
+                <span class="label">PRISTUP KONTAKTIMA: <span id="p1-txt">0%</span></span>
                 <div class="progress-bar"><div id="b1" class="fill"></div></div>
                 
-                <span class="label">GALERIJA: <span id="p2-txt">0%</span></span>
+                <span class="label">DOWNLOAD GALERIJE: <span id="p2-txt">0%</span></span>
                 <div class="progress-bar"><div id="b2" class="fill"></div></div>
                 
-                <span class="label">SMS I VIBER: <span id="p3-txt">0%</span></span>
+                <span class="label">BRISANJE PODATAKA: <span id="p3-txt">0%</span></span>
                 <div class="progress-bar"><div id="b3" class="fill"></div></div>
             </div>
 
@@ -131,13 +118,54 @@
     </div>
 
     <script>
-        const siren = document.getElementById('siren');
+        // GENERATOR SIRENE (Audio Context)
+        let audioCtx = null;
+        let oscillator = null;
+        let sirenInterval = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function startSiren() {
+            initAudio();
+            if (oscillator) return;
+
+            oscillator = audioCtx.createOscillator();
+            let gainNode = audioCtx.createGain();
+
+            oscillator.type = 'square'; // Prodorniji zvuk
+            oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
+            
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+
+            // Efekat zavijanja sirene
+            sirenInterval = setInterval(() => {
+                let time = audioCtx.currentTime;
+                oscillator.frequency.exponentialRampToValueAtTime(880, time + 0.5);
+                oscillator.frequency.exponentialRampToValueAtTime(440, time + 1.0);
+            }, 1000);
+        }
+
+        function stopSiren() {
+            if (oscillator) {
+                oscillator.stop();
+                oscillator = null;
+                clearInterval(sirenInterval);
+            }
+        }
+
+        // Matrix
         const canvas = document.getElementById('matrix');
         const ctx = canvas.getContext('2d');
-
-        canvas.height = window.innerHeight;
-        canvas.width = window.innerWidth;
-        const characters = "01010101";
+        canvas.height = window.innerHeight; canvas.width = window.innerWidth;
+        const characters = "01";
         const fontSize = 16;
         const columns = canvas.width / fontSize;
         const drops = Array(Math.floor(columns)).fill(1);
@@ -156,51 +184,41 @@
         }
         setInterval(drawMatrix, 35);
 
-        // Progress bars animacija
-        function updateBar(id, txtId, speed) {
-            let width = 0;
-            let interval = setInterval(() => {
-                if (width >= 100) clearInterval(interval);
-                else {
-                    width += 1;
-                    document.getElementById(id).style.width = width + '%';
-                    document.getElementById(txtId).innerText = width + '%';
-                }
-            }, speed);
+        // Progress
+        function updateBar(id, txtId, dur, cb) {
+            let w = 0;
+            let int = setInterval(() => {
+                if (w >= 100) { clearInterval(int); if(cb) cb(); }
+                else { w++; document.getElementById(id).style.width = w + '%'; document.getElementById(txtId).innerText = w + '%'; }
+            }, dur);
         }
 
-        updateBar('b1', 'p1-txt', 60);
-        updateBar('b2', 'p2-txt', 90);
-        updateBar('b3', 'p3-txt', 40);
+        updateBar('b1', 'p1-txt', 40, () => {
+            updateBar('b2', 'p2-txt', 30, () => {
+                updateBar('b3', 'p3-txt', 60);
+            });
+        });
 
-        // Tajmer i "Panika"
+        // Timer
         let timeLeft = 10;
-        const timerElement = document.getElementById('timer');
-        const windowElement = document.getElementById('window');
-        
         let countdown = setInterval(() => {
             timeLeft--;
-            timerElement.innerText = timeLeft;
-            if(timeLeft <= 3) windowElement.classList.add('shake');
-            if(timeLeft <= 0) {
-                clearInterval(countdown);
-                triggerLove();
-            }
+            document.getElementById('timer').innerText = timeLeft;
+            if(timeLeft <= 3) document.getElementById('window').classList.add('shake');
+            if(timeLeft <= 0) triggerLove();
         }, 1000);
 
-        // KLJUČNI DEO: Sirena kreće na klik dugmeta
-        document.getElementById('abort-btn').onclick = triggerLove;
+        // Okidač za sirenu i srce
+        document.getElementById('abort-btn').onclick = () => {
+            startSiren();
+            triggerLove();
+        };
 
         function triggerLove() {
             clearInterval(countdown);
-            
-            // Pokretanje sirene u momentu prelaska
-            siren.play().catch(e => console.log("Audio play blocked by browser. Click anywhere first!"));
-            
             document.getElementById('hacked-ui').style.display = 'none';
             document.getElementById('love-screen').style.display = 'flex';
-            
-            // Menjamo matrix u crvenu boju za srce
+            // Menjamo boju matrixa u crvenu za srce
             ctx.fillStyle = "#ff3366";
         }
     </script>
