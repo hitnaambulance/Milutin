@@ -85,14 +85,11 @@
 
         function pokreniSve() {
             if (!aktivirano) {
-                // Budimo audio
+                // Budimo audio i Matrix na prvi dodir ekrana
                 siren.play().then(() => { siren.pause(); siren.currentTime = 0; }).catch(e => console.log("Audio block"));
-                
-                // Krećemo Matrix i barove
                 setInterval(draw, 35);
                 fillBar("b1", "p1", 50, () => fillBar("b2", "p2", 40, () => fillBar("b3", "p3", 80)));
                 
-                // Tajmer
                 let time = 10;
                 let tInv = setInterval(() => {
                     time--; 
